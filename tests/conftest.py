@@ -7,11 +7,19 @@ import pytest
 from fastapi.testclient import TestClient
 
 from roleless.secure import create_app
+from roleless.vulnerable import create_app as create_vulnerable_app
 
 
 @pytest.fixture
 def client(tmp_path: Path) -> Iterator[TestClient]:
     app = create_app(str(tmp_path / "roleless.db"))
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+@pytest.fixture
+def vulnerable_client(tmp_path: Path) -> Iterator[TestClient]:
+    app = create_vulnerable_app(str(tmp_path / "vulnerable.db"), require_acknowledgement=False)
     with TestClient(app) as test_client:
         yield test_client
 
