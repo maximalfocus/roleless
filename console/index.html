@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>roleless — function authorization console</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">LOCAL SECURITY DEMONSTRATION</p>
+        <h1>Hidden is not forbidden.</h1>
+        <p class="lede">
+          Pick a fictional role and application. The interface hides admin controls from low-privilege
+          users, but only the server can decide whether the function actually runs.
+        </p>
+      </header>
+
+      <section class="panel selector-panel" aria-labelledby="connection-title">
+        <div>
+          <p class="section-number">01</p>
+          <h2 id="connection-title">Choose the caller and server</h2>
+        </div>
+        <div class="selectors">
+          <label>
+            Fictional role
+            <select id="role-select">
+              <option value="viewer">viewer</option>
+              <option value="agent" selected>agent</option>
+              <option value="supervisor">supervisor</option>
+              <option value="admin">admin</option>
+              <option value="contractor">contractor</option>
+            </select>
+          </label>
+          <label>
+            Application
+            <select id="application-select">
+              <option value="http://127.0.0.1:8000" selected>secure · port 8000</option>
+              <option value="http://127.0.0.1:8001">vulnerable · port 8001</option>
+            </select>
+          </label>
+        </div>
+        <p id="application-state" class="state" role="status"></p>
+        <p class="warning">
+          The vulnerable app is local educational code and starts only with the
+          <code>vulnerable</code> profile plus <code>ALLOW_VULNERABLE_DEMO=true</code>. Never deploy it.
+        </p>
+      </section>
+
+      <section class="panel" aria-labelledby="identity-title">
+        <div>
+          <p class="section-number">02</p>
+          <h2 id="identity-title">What the server believes</h2>
+        </div>
+        <dl id="identity-card" class="identity-card">
+          <div><dt>Actor</dt><dd id="identity-name">Loading…</dd></div>
+          <div><dt>Stored role</dt><dd id="identity-role">—</dd></div>
+          <div><dt>Role source</dt><dd>server-side user record</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel" aria-labelledby="functions-title">
+        <div>
+          <p class="section-number">03</p>
+          <h2 id="functions-title">Function inventory</h2>
+        </div>
+        <div class="function-content">
+          <ul id="function-list" class="function-list"></ul>
+
+          <div id="admin-controls" class="admin-controls" hidden>
+            <h3>Administrative controls</h3>
+            <p>These controls are visible because the API reported <code>admin</code>.</p>
+            <div class="button-row">
+              <button type="button" data-admin-action="grant-current">Grant role</button>
+              <button type="button" data-admin-action="post-export">Export customers</button>
+              <button type="button" data-admin-action="bulk-close">Bulk-close tickets</button>
+              <button type="button" data-admin-action="forged-contact">Read contact</button>
+            </div>
+          </div>
+          <p id="hidden-note" class="hidden-note">
+            Admin controls are hidden for this role. That is presentation, not authorization.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel send-panel" aria-labelledby="send-title">
+        <div>
+          <p class="section-number">04</p>
+          <h2 id="send-title">Send it anyway</h2>
+        </div>
+        <p>
+          Issue the exact request a hidden control—or a caller-supplied role header—would send. Compare
+          the vulnerable impact with the secure server's refusal.
+        </p>
+        <label>
+          Demonstration request
+          <select id="action-select">
+            <option value="grant-current">Rung 1 · grant my own role</option>
+            <option value="post-export">Rung 2 · forgotten POST export</option>
+            <option value="legacy-grant">Rung 3 · undocumented legacy grant</option>
+            <option value="bulk-close">Rung 4 · bulk close through denylist</option>
+            <option value="forged-contact">Rung 5 · assert admin in a header</option>
+          </select>
+        </label>
+        <button id="send-button" class="primary" type="button">Send it anyway</button>
+
+        <div class="exchange-grid request-grid">
+          <div>
+            <h3>Request</h3>
+            <pre id="request-output">Choose an action.</pre>
+          </div>
+          <div>
+            <h3>What to compare</h3>
+            <p class="comparison-note">
+              Send the same action once to each application. Results stay here only until this page is
+              refreshed; nothing is stored.
+            </p>
+          </div>
+        </div>
+        <div class="exchange-grid response-grid" aria-live="polite">
+          <div>
+            <h3>Secure raw response</h3>
+            <pre id="secure-response-output">Not sent yet.</pre>
+          </div>
+          <div>
+            <h3>Vulnerable raw response</h3>
+            <pre id="vulnerable-response-output">Not sent yet.</pre>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>CORS lets this loopback page read the loopback APIs. It is not an authorization control.</p>
+      </footer>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

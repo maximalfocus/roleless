@@ -19,6 +19,25 @@ services:
       retries: 20
     networks: [demo_internal, published]
 
+  console:
+    build:
+      context: .
+      target: console
+    command: ["python", "-m", "http.server", "8080", "--bind", "0.0.0.0", "--directory", "/app/console"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/')"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+    networks: [published]
+
   vulnerable:
     build:
       context: .

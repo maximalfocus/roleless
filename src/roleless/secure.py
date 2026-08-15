@@ -10,6 +10,7 @@ from typing import Annotated, Any, cast
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.routing import APIRoute
 
+from roleless.cors import add_console_cors
 from roleless.database import Database
 from roleless.model import Actor, CommentCreate, ReassignRequest, RoleGrant, TicketCreate
 from roleless.policy import PUBLIC_ROUTES, ROLE_PERMISSIONS, ROUTE_PERMISSIONS, RouteKey
@@ -118,6 +119,7 @@ def create_app(database_path: str | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     application.state.database = database
+    add_console_cors(application)
 
     @application.get("/health")
     def health() -> dict[str, str]:

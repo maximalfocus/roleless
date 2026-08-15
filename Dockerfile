@@ -19,6 +19,14 @@ RUN groupadd --system --gid 999 roleless \
 USER roleless
 CMD ["uvicorn", "roleless.secure:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
 
+FROM python:3.13.7-slim AS console
+WORKDIR /app
+COPY console ./console
+RUN groupadd --system --gid 999 roleless \
+    && useradd --system --uid 999 --gid roleless --home-dir /nonexistent roleless
+USER roleless
+CMD ["python", "-m", "http.server", "8080", "--bind", "0.0.0.0", "--directory", "/app/console"]
+
 FROM python:3.13.7-slim AS verification
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 UV_LINK_MODE=copy
 COPY --from=uv /uv /uvx /bin/
@@ -29,4 +37,5 @@ COPY src ./src
 COPY tests ./tests
 COPY scripts ./scripts
 COPY compose.yaml ./
+COPY console ./console
 ENV PATH="/app/.venv/bin:$PATH" PYTHONPATH="/app/src"
