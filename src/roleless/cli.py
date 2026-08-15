@@ -66,9 +66,9 @@ def interactive(secure_url: str, vulnerable_url: str, *, verbose: bool = False) 
     application = input("Application [secure/vulnerable]: ").strip().lower()
     if application not in {"secure", "vulnerable"}:
         raise SystemExit("choose secure or vulnerable")
-    rung_text = input("Rung [1/2/3]: ").strip()
-    if rung_text not in {"1", "2", "3"}:
-        raise SystemExit("choose rung 1, 2, or 3")
+    rung_text = input("Rung [1/2/3/4/5]: ").strip()
+    if rung_text not in {"1", "2", "3", "4", "5"}:
+        raise SystemExit("choose rung 1, 2, 3, 4, or 5")
     base_url = secure_url if application == "secure" else vulnerable_url
     wait_ready(base_url)
     with httpx.Client(base_url=base_url, timeout=10) as client:

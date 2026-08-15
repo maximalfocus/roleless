@@ -15,10 +15,12 @@ An API has three separate questions to answer:
 
 Broken Function Level Authorization (BFLA) is OWASP API5:2023 and an instance of OWASP A01:2021 Broken
 Access Control. It maps primarily to CWE-285 (improper authorization), with missing checks represented by
-CWE-862. It is also known historically as Missing Function Level Access Control and commonly as vertical
-privilege escalation. BOLA is different: BOLA is horizontal access to another user's object at the same
-privilege level; BFLA reaches an operation above the caller's privilege level. `roleless` keeps the
-object-level rule identical and correct in both applications so only the function-level axis changes.
+CWE-862; checked-but-wrong decisions map to CWE-863 (incorrect authorization), and the self-promotion
+impact illustrates CWE-269 (improper privilege management). It is also known historically as Missing
+Function Level Access Control and commonly as vertical privilege escalation. BOLA is different: BOLA is
+horizontal access to another user's object at the same privilege level; BFLA reaches an operation above
+the caller's privilege level. `roleless` keeps the object-level rule identical and correct in both
+applications so only the function-level axis changes.
 
 ## Rung 1 — no check at all
 
@@ -44,6 +46,23 @@ disabled. It does not appear in `/openapi.json`, but a direct call still grants 
 suppression is a presentation setting, never authorization. The secure app deletes the superseded route,
 so it returns `404`; its startup completeness check would fail if any surviving route lacked a central
 policy declaration.
+
+## Rung 4 — a denylist that ages badly
+
+The vulnerable bulk-close handler asks only `if role == "viewer": deny`. An `agent` therefore closes every
+open ticket despite lacking that capability. So does `contractor`, a read-only role added after the check
+was written and therefore absent from its author's list of known-dangerous roles; only `viewer` is
+refused. A denylist encodes what the author happened to know when it was written. The secure allowlist
+encodes intent: both low-privilege roles remain denied until someone explicitly grants the permission.
+
+## Rung 5 — client-asserted role
+
+The vulnerable contact handler trusts `X-Actor-Role`, presented as a header an internal gateway was
+expected to set and strip. A stored-role `agent` sends `X-Actor-Role: admin` and receives the fictional
+customer contact. A genuine admin sending `X-Actor-Role: viewer` is refused by the vulnerable handler,
+showing that it trusts the header in both directions. The secure app ignores the header, refuses the
+agent, and permits the admin. Any authorization value the client can set is an input, not a fact, unless
+it arrives inside something the server itself verifies.
 
 ## Why the secure design closes the class
 

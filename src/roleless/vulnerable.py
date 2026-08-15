@@ -126,9 +126,11 @@ def create_app(
                 raise HTTPException(status_code=409, detail="Conflict") from error
             raise
 
-    @application.post("/admin/tickets/bulk-close", dependencies=[Depends(require_admin)])
+    # Rung 4: the denylist predates contractor and refuses only the one known read-only role.
+    @application.post("/admin/tickets/bulk-close")
     def bulk_close(request: Request, actor: ActorDependency) -> dict[str, int]:
-        del actor
+        if actor.role == "viewer":
+            raise FORBIDDEN
         return database_for(request).bulk_close()
 
     # Rung 1: authentication is present, but no function-level authorization exists.
@@ -151,11 +153,12 @@ def create_app(
     def forgotten_post_export(request: Request) -> list[dict[str, str]]:
         return database_for(request).export_customers()
 
-    @application.post(
-        "/admin/customers/{customer_id}/contact", dependencies=[Depends(require_admin)]
-    )
+    # Rung 5: the service trusts a gateway-supplied header that the caller can set directly.
+    @application.post("/admin/customers/{customer_id}/contact")
     def contact(customer_id: str, request: Request, actor: ActorDependency) -> dict[str, str]:
-        del actor
+        claimed_role = request.headers.get("X-Actor-Role", actor.role)
+        if claimed_role != "admin":
+            raise FORBIDDEN
         try:
             return database_for(request).customer_contact(customer_id)
         except KeyError as error:

@@ -3,7 +3,8 @@
 `roleless` is a private, local-only educational project about function-level authorization. The secure
 support-desk application binds every API operation to a permission in one central policy table and fails
 closed. An intentionally vulnerable companion demonstrates three ways that a function check can be
-missing: an unguarded admin function, a forgotten HTTP verb, and an undocumented route that remains live.
+missing—an unguarded admin function, a forgotten HTTP verb, and an undocumented route that remains
+live—and two ways a present check can trust the wrong rule or input.
 
 All users, tokens, customers, and tickets are fictional demonstration data. The application executes no
 commands, accepts no real credentials, and keeps its disposable SQLite state inside the container. The
@@ -23,7 +24,7 @@ The secure API is available during the run at <http://127.0.0.1:8000/docs>. The 
 each legitimate role lifecycle and representative refusals. It should complete well under five minutes
 after the images are available.
 
-## Three-rung comparison
+## Five-rung comparison
 
 Starting the vulnerable application requires two deliberate actions: enable its Compose profile and set
 the exact acknowledgement. Run both applications and the deterministic comparison against fresh state:
