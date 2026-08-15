@@ -167,7 +167,7 @@ def test_object_level_refusal_is_identical(application_pair: tuple[TestClient, T
     assert secure_response.json() == vulnerable_response.json() == {"detail": "Forbidden"}
 
 
-def test_scenario_engine_reports_three_contrasts(
+def test_scenario_engine_reports_five_contrasts(
     application_pair: tuple[TestClient, TestClient],
 ) -> None:
     secure, vulnerable = application_pair
@@ -179,6 +179,10 @@ def test_scenario_engine_reports_three_contrasts(
         (2, "secure", "SECURE"),
         (3, "vulnerable", "VULNERABLE"),
         (3, "secure", "SECURE"),
+        (4, "vulnerable", "VULNERABLE"),
+        (4, "secure", "SECURE"),
+        (5, "vulnerable", "VULNERABLE"),
+        (5, "secure", "SECURE"),
     ]
     rung_one = comparison.results[0]
     assert rung_one.effect == "role agent->admin; export 403->200"
