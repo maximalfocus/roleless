@@ -1,6 +1,6 @@
 # roleless
 
-`roleless` is a private, local-only educational project about function-level authorization. The secure
+`roleless` is a local-only educational project about function-level authorization. The secure
 support-desk application binds every API operation to a permission in one central policy table and fails
 closed. An intentionally vulnerable companion demonstrates three ways that a function check can be
 missing—an unguarded admin function, a forgotten HTTP verb, and an undocumented route that remains
@@ -10,6 +10,9 @@ All users, tokens, customers, and tickets are fictional demonstration data. The 
 commands, accepts no real credentials, and keeps its disposable SQLite state inside the container. The
 host needs Docker Compose only; no host Python installation is supported. The vulnerable application is
 educational code that must never be deployed or exposed beyond the local demonstration.
+
+There is no hosted service or public demo endpoint. This project makes no production-safety,
+compatibility, support-duration, or service-level promise.
 
 ## Browser console
 
@@ -92,3 +95,12 @@ The secure server reads roles only from its database. `X-Actor-Role` and all oth
 claims are ignored. A single global dependency consults the central `(method, route) -> permission` map,
 and startup rejects any non-public route missing from that map. Refusals return the same terse `403`
 response; detailed, credential-free evidence is emitted only as a structured audit event.
+
+## Participate
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the supported development and verification workflow. Report
+unintended security problems through the private route in [SECURITY.md](SECURITY.md), not a public issue.
+
+## License
+
+Licensed under the [MIT License](LICENSE).
