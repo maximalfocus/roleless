@@ -1,0 +1,36 @@
+services:
+  secure:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "127.0.0.1:8000:8000"
+    read_only: true
+    tmpfs:
+      - /tmp/roleless:uid=999,gid=999,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  walkthrough:
+    build:
+      context: .
+      target: runtime
+    profiles: ["demo"]
+    depends_on:
+      secure:
+        condition: service_healthy
+    command: ["python", "-m", "roleless.walkthrough", "--base-url", "http://secure:8000"]
+
+  verify:
+    build:
+      context: .
+      target: verification
+    profiles: ["verify"]
+    command: ["sh", "scripts/verify.sh"]
