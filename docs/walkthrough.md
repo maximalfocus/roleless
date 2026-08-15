@@ -77,3 +77,42 @@ structured audit event records the fictional actor, stored role, attempted funct
 server side without tokens, authorization headers, customer contacts, or real personal information.
 Returning `404` instead can be appropriate when a route's existence is sensitive; here `403` is accurate
 because the declared operations are not secret, only entitlement is restricted.
+
+## Browser console: hidden is not forbidden
+
+Start the default secure application and static console:
+
+```sh
+docker compose up --build --wait
+```
+
+Open <http://127.0.0.1:8080>. Select a fictional role and the secure application. The page asks `GET
+/me` what role the server has stored, renders the intended function inventory, and hides the
+administrative controls unless that response says `admin`. This is presentation only. It is deliberately
+not asserted as a security property: a caller can still construct the request that the hidden control
+would have sent.
+
+The **Send it anyway** panel exposes each of the five exact demonstration requests and prints its method,
+path, fictional authorization header, optional role header, body, and raw HTTP status/body. The secure
+results are `403` for rungs 1, 2, 4, and 5 and `404` for the deleted legacy route in rung 3.
+
+To retain those secure results on screen and compare the vulnerable application, start the opt-in profile
+in another terminal, select the vulnerable application, and send the same action:
+
+```sh
+ALLOW_VULNERABLE_DEMO=true docker compose --profile vulnerable up --build --wait
+```
+
+The vulnerable result is `200` with the fictional impact. Rung 1 changes the selected agent's stored role,
+so restart with fresh state before demonstrating later rungs as a non-escalated agent. When finished:
+
+```sh
+docker compose --profile vulnerable down --volumes --remove-orphans
+```
+
+The static page contains a closed allowlist of only `http://127.0.0.1:8000` and
+`http://127.0.0.1:8001`; there is no arbitrary target field, third-party asset, build step, service worker,
+or persistent storage. Both APIs return cross-origin sharing headers only to the console origin
+`http://127.0.0.1:8080`, for the methods and headers the page needs. CORS is a browser sharing rule, not
+authorization: non-browser callers do not rely on it, and the server must enforce every function call
+regardless of origin.

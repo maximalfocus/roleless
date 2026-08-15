@@ -11,6 +11,27 @@ commands, accepts no real credentials, and keeps its disposable SQLite state ins
 host needs Docker Compose only; no host Python installation is supported. The vulnerable application is
 educational code that must never be deployed or exposed beyond the local demonstration.
 
+## Browser console
+
+Start the secure API and dependency-free static console:
+
+```sh
+docker compose up --build --wait
+```
+
+Open <http://127.0.0.1:8080>. Pick any fictional role, inspect the function inventory, and use **Send it
+anyway** to see that a hidden administrative control does not stop its underlying request. The console
+can address exactly `http://127.0.0.1:8000` and `http://127.0.0.1:8001`; it has no user-entered target,
+third-party asset, build step, service worker, or persistent storage. Stop it and discard state with:
+
+```sh
+docker compose down --volumes --remove-orphans
+```
+
+Hiding a control is presentation, never authorization, so the project deliberately does not treat a DOM
+visibility assertion as a security test. CORS is only browser-enforced sharing plumbing that lets this
+page on one loopback port read an API on another; it is not an authorization control either.
+
 ## Secure walkthrough
 
 Run the real HTTP walkthrough against fresh fixtures, then remove the disposable container state:
@@ -58,7 +79,8 @@ docker compose --profile verify run --build --rm verify
 ```
 
 This runs pytest, Ruff, and mypy inside the Python 3.13 container. The default Compose configuration
-publishes only the secure service on loopback. The browser console is not part of this slice.
+publishes only the secure API and static console on loopback. The vulnerable application remains behind
+its profile and acknowledgement.
 
 ## Authorization model
 
