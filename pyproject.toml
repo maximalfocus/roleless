@@ -1,0 +1,38 @@
+[project]
+name = "roleless"
+version = "0.1.0"
+description = "Local educational demonstration of deny-by-default function authorization"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi==0.116.1",
+  "httpx==0.28.1",
+  "uvicorn[standard]==0.35.0",
+]
+
+[dependency-groups]
+dev = [
+  "mypy==1.17.1",
+  "pytest==8.4.1",
+  "pytest-cov==6.2.1",
+  "ruff==0.12.9",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src/roleless"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
