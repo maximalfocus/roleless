@@ -28,4 +28,5 @@ RUN uv sync --frozen --no-install-project
 COPY src ./src
 COPY tests ./tests
 COPY scripts ./scripts
+COPY compose.yaml ./
 ENV PATH="/app/.venv/bin:$PATH" PYTHONPATH="/app/src"

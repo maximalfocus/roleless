@@ -17,6 +17,53 @@ services:
       interval: 1s
       timeout: 2s
       retries: 20
+    networks: [demo_internal, published]
+
+  vulnerable:
+    build:
+      context: .
+      target: runtime
+    profiles: ["vulnerable"]
+    environment:
+      ALLOW_VULNERABLE_DEMO: "${ALLOW_VULNERABLE_DEMO:-false}"
+      ROLELESS_DB_PATH: /tmp/roleless/roleless.db
+    command: ["uvicorn", "roleless.vulnerable:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
+    read_only: true
+    tmpfs:
+      - /tmp/roleless:uid=999,gid=999,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+    networks: [demo_internal]
+
+  vulnerable-gateway:
+    build:
+      context: .
+      target: runtime
+    profiles: ["vulnerable"]
+    depends_on:
+      vulnerable:
+        condition: service_healthy
+    command: ["uvicorn", "roleless.gateway:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]
+    ports:
+      - "127.0.0.1:8001:8080"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+    networks: [demo_internal, published]
 
   walkthrough:
     build:
@@ -27,6 +74,26 @@ services:
       secure:
         condition: service_healthy
     command: ["python", "-m", "roleless.walkthrough", "--base-url", "http://secure:8000"]
+    networks: [demo_internal]
+
+  compare:
+    build:
+      context: .
+      target: runtime
+    profiles: ["compare"]
+    depends_on:
+      secure:
+        condition: service_healthy
+    command:
+      - python
+      - -m
+      - roleless.cli
+      - --secure-url
+      - http://secure:8000
+      - --vulnerable-url
+      - http://vulnerable:8000
+      - compare
+    networks: [demo_internal]
 
   verify:
     build:
@@ -34,3 +101,9 @@ services:
       target: verification
     profiles: ["verify"]
     command: ["sh", "scripts/verify.sh"]
+    networks: [demo_internal]
+
+networks:
+  demo_internal:
+    internal: true
+  published:
